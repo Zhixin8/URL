@@ -13,8 +13,17 @@ const expiryTimeDisplay = document.getElementById('expiryTime');
 const passwordStatusDisplay = document.getElementById('passwordStatus');
 const copyBtn = document.getElementById('copyBtn');
 
-// 短链接前缀（改为页面路径 + 查询参数）
-const BASE_URL = window.location.pathname; // 动态获取当前页面路径，例如 "/shortlink-generator/index.html"
+// 调试：检查 DOM 元素是否正确获取
+if (!longUrlInput || !generateBtn || !resultSection) {
+  console.error('DOM 元素未找到：', {
+    longUrlInput: !!longUrlInput,
+    generateBtn: !!generateBtn,
+    resultSection: !!resultSection
+  });
+}
+
+// 短链接前缀（适配 GitHub Pages 路径）
+const BASE_URL = '/URL/'; // GitHub Pages 路径为 /URL/
 
 // 过期时间映射
 const expiryOptions = {
@@ -68,6 +77,7 @@ function getShortLinks() {
 
 // 生成短链接
 generateBtn.addEventListener('click', () => {
+  console.log('生成短链接按钮被点击');
   const longUrl = longUrlInput.value.trim();
   const expiryDays = expirySelect.value;
   const password = passwordField.value.trim();
@@ -98,8 +108,9 @@ generateBtn.addEventListener('click', () => {
 
 // 复制短链接
 copyBtn.addEventListener('click', () => {
-  navigator.clipboard.writeText(shortUrlDisplay.textContent).then(() => {
-    alert('已复制！');
+  const fullShortUrl = `https://zhixin8.github.io${shortUrlDisplay.textContent}`;
+  navigator.clipboard.writeText(fullShortUrl).then(() => {
+    alert('已复制完整短链接：' + fullShortUrl);
   });
 });
 
