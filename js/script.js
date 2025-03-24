@@ -8,7 +8,6 @@ const togglePassword = document.getElementById('togglePassword');
 const generateBtn = document.getElementById('generateBtn');
 const resultSection = document.getElementById('resultSection');
 const shortUrlDisplay = document.getElementById('shortUrl');
-const fullShortUrlDisplay = document.getElementById('fullShortUrl');
 const createdAtDisplay = document.getElementById('createdAt');
 const expiryTimeDisplay = document.getElementById('expiryTime');
 const passwordStatusDisplay = document.getElementById('passwordStatus');
@@ -27,6 +26,7 @@ if (!longUrlInput || !generateBtn || !resultSection) {
 const BASE_PATH = '/URL/'; // GitHub Pages 路径
 const DOMAIN = 'https://zhixin8.github.io'; // 完整域名
 const BASE_URL = `${DOMAIN}${BASE_PATH}`; // 完整短链接前缀，例如 https://zhixin8.github.io/URL/
+const LINKS_JSON_URL = `${DOMAIN}${BASE_PATH}links.json`; // links.json 文件的完整 URL
 
 // 过期时间映射
 const expiryOptions = {
@@ -60,9 +60,24 @@ function generateRandomSuffix() {
   return suffix;
 }
 
-// 保存短链接到 localStorage
-function saveShortLink(longUrl, shortUrlId, expiryDays, password) {
-  const links = JSON.parse(localStorage.getItem('shortLinks')) || [];
+// 获取短链接列表（从 links.json 读取）
+async function getShortLinks() {
+  try {
+    const response = await fetch(LINKS_JSON_URL);
+    if (!response.ok) {
+      throw new Error('无法加载 links.json');
+    }
+    return await response.json();
+  } catch (error) {
+    console.error('获取短链接列表失败：', error);
+    return [];
+  }
+}
+
+// 注意：由于 GitHub Pages 是静态托管，无法直接通过前端写入 links.json
+// 这里仅模拟保存逻辑，实际需要手动更新 links.json 或使用 GitHub API
+async function saveShortLink(longUrl, shortUrlId, expiryDays, password) {
+  const links = await getShortLinks();
   const createdAt = new Date();
   let expiryTime = null;
   if (expiryDays !== 'permanent') {
@@ -70,16 +85,14 @@ function saveShortLink(longUrl, shortUrlId, expiryDays, password) {
     expiryTime.setDate(expiryTime.getDate() + parseInt(expiryDays));
   }
   links.push({ longUrl, shortUrlId, expiryTime: expiryTime ? expiryTime.toISOString() : null, password, createdAt: createdAt.toISOString() });
-  localStorage.setItem('shortLinks', JSON.stringify(links));
-}
 
-// 获取短链接列表
-function getShortLinks() {
-  return JSON.parse(localStorage.getItem('shortLinks')) || [];
+  // 模拟保存（实际需要手动更新 links.json 或使用 GitHub API）
+  console.log('请手动将以下数据添加到 links.json：', JSON.stringify(links, null, 2));
+  alert('短链接已生成，但由于 GitHub Pages 限制，数据未保存。请查看控制台，将数据手动添加到 links.json 文件。');
 }
 
 // 生成短链接
-generateBtn.addEventListener('click', () => {
+generateBtn.addEventListener('click', async () => {
   console.log('生成短链接按钮被点击');
   const longUrl = longUrlInput.value.trim();
   const expiryDays = expirySelect.value;
@@ -93,14 +106,12 @@ generateBtn.addEventListener('click', () => {
 
   // 生成短链接 ID
   const shortUrlId = generateRandomSuffix();
-  const shortUrl = `${BASE_PATH}?id=${shortUrlId}`; // 相对路径，用于页面内跳转
-  const fullShortUrl = `${BASE_URL}?id=${shortUrlId}`; // 完整 URL，用于复制
-  saveShortLink(longUrl, shortUrlId, expiryDays, password);
+  const shortUrl = `${BASE_URL}?id=${shortUrlId}`; // 完整 URL
+  await saveShortLink(longUrl, shortUrlId, expiryDays, password);
 
   // 显示结果
   shortUrlDisplay.textContent = shortUrl;
   shortUrlDisplay.href = shortUrl;
-  fullShortUrlDisplay.textContent = fullShortUrl;
   createdAtDisplay.textContent = new Date().toLocaleString();
   expiryTimeDisplay.textContent = expiryDays === 'permanent' ? '永不过期' : new Date(new Date().setDate(new Date().getDate() + parseInt(expiryDays))).toLocaleString();
   passwordStatusDisplay.textContent = password ? '****' : '无';
@@ -113,15 +124,15 @@ generateBtn.addEventListener('click', () => {
 
 // 复制短链接
 copyBtn.addEventListener('click', () => {
-  const fullShortUrl = fullShortUrlDisplay.textContent;
-  navigator.clipboard.writeText(fullShortUrl).then(() => {
-    alert('已复制完整短链接：' + fullShortUrl);
+  const shortUrl = shortUrlDisplay.textContent;
+  navigator.clipboard.writeText(shortUrl).then(() => {
+    alert('已复制短链接：' + shortUrl);
   });
 });
 
 // 短链接跳转（处理点击和直接访问）
-function handleShortLinkRedirect(shortUrlId) {
-  const links = getShortLinks();
+async function handleShortLinkRedirect(shortUrlId) {
+  const links = await getShortLinks();
   const link = links.find(l => l.shortUrlId === shortUrlId);
   if (link) {
     if (link.expiryTime && new Date(link.expiryTime) < new Date()) {
@@ -142,20 +153,20 @@ function handleShortLinkRedirect(shortUrlId) {
 }
 
 // 处理页面加载时的短链接访问
-window.addEventListener('load', () => {
+window.addEventListener('load', async () => {
   const urlParams = new URLSearchParams(window.location.search);
   const shortUrlId = urlParams.get('id');
   if (shortUrlId) {
-    handleShortLinkRedirect(shortUrlId);
+    await handleShortLinkRedirect(shortUrlId);
   }
 });
 
 // 处理页面内短链接点击
-document.addEventListener('click', (e) => {
+document.addEventListener('click', async (e) => {
   const target = e.target;
   if (target.tagName === 'A' && target.href.includes('?id=')) {
     e.preventDefault();
     const shortUrlId = new URLSearchParams(new URL(target.href).search).get('id');
-    handleShortLinkRedirect(shortUrlId);
+    await handleShortLinkRedirect(shortUrlId);
   }
 });
