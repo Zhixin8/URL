@@ -8,6 +8,7 @@ const togglePassword = document.getElementById('togglePassword');
 const generateBtn = document.getElementById('generateBtn');
 const resultSection = document.getElementById('resultSection');
 const shortUrlDisplay = document.getElementById('shortUrl');
+const fullShortUrlDisplay = document.getElementById('fullShortUrl');
 const createdAtDisplay = document.getElementById('createdAt');
 const expiryTimeDisplay = document.getElementById('expiryTime');
 const passwordStatusDisplay = document.getElementById('passwordStatus');
@@ -23,7 +24,9 @@ if (!longUrlInput || !generateBtn || !resultSection) {
 }
 
 // 短链接前缀（适配 GitHub Pages 路径）
-const BASE_URL = '/URL/'; // GitHub Pages 路径为 /URL/
+const BASE_PATH = '/URL/'; // GitHub Pages 路径
+const DOMAIN = 'https://zhixin8.github.io'; // 完整域名
+const BASE_URL = `${DOMAIN}${BASE_PATH}`; // 完整短链接前缀，例如 https://zhixin8.github.io/URL/
 
 // 过期时间映射
 const expiryOptions = {
@@ -90,12 +93,14 @@ generateBtn.addEventListener('click', () => {
 
   // 生成短链接 ID
   const shortUrlId = generateRandomSuffix();
-  const shortUrl = `${BASE_URL}?id=${shortUrlId}`;
+  const shortUrl = `${BASE_PATH}?id=${shortUrlId}`; // 相对路径，用于页面内跳转
+  const fullShortUrl = `${BASE_URL}?id=${shortUrlId}`; // 完整 URL，用于复制
   saveShortLink(longUrl, shortUrlId, expiryDays, password);
 
   // 显示结果
   shortUrlDisplay.textContent = shortUrl;
   shortUrlDisplay.href = shortUrl;
+  fullShortUrlDisplay.textContent = fullShortUrl;
   createdAtDisplay.textContent = new Date().toLocaleString();
   expiryTimeDisplay.textContent = expiryDays === 'permanent' ? '永不过期' : new Date(new Date().setDate(new Date().getDate() + parseInt(expiryDays))).toLocaleString();
   passwordStatusDisplay.textContent = password ? '****' : '无';
@@ -108,7 +113,7 @@ generateBtn.addEventListener('click', () => {
 
 // 复制短链接
 copyBtn.addEventListener('click', () => {
-  const fullShortUrl = `https://zhixin8.github.io${shortUrlDisplay.textContent}`;
+  const fullShortUrl = fullShortUrlDisplay.textContent;
   navigator.clipboard.writeText(fullShortUrl).then(() => {
     alert('已复制完整短链接：' + fullShortUrl);
   });
