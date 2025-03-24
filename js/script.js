@@ -96,7 +96,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 生成短链接 ID
     const shortUrlId = generateRandomSuffix();
-    const shortUrl = `${BASE_URL}?id=${shortUrlId}`; // 完整 URL
+    const shortUrl = `${BASE_URL}verify.html?id=${shortUrlId}`; // 指向 verify.html
     saveShortLink(longUrl, shortUrlId, expiryDays, password);
 
     // 显示结果
@@ -118,46 +118,5 @@ document.addEventListener('DOMContentLoaded', () => {
     navigator.clipboard.writeText(shortUrl).then(() => {
       alert('已复制短链接：' + shortUrl);
     });
-  });
-
-  // 短链接跳转（处理点击和直接访问）
-  function handleShortLinkRedirect(shortUrlId) {
-    const links = getShortLinks();
-    const link = links.find(l => l.shortUrlId === shortUrlId);
-    if (link) {
-      if (link.expiryTime && new Date(link.expiryTime) < new Date()) {
-        alert('短链接已过期！');
-        return;
-      }
-      if (link.password) {
-        const password = prompt('请输入访问密码：');
-        if (password !== link.password) {
-          alert('密码错误！');
-          return;
-        }
-      }
-      window.location.href = link.longUrl; // 直接跳转到目标地址
-    } else {
-      alert('短链接不存在！');
-    }
-  }
-
-  // 处理页面加载时的短链接访问
-  window.addEventListener('load', () => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const shortUrlId = urlParams.get('id');
-    if (shortUrlId) {
-      handleShortLinkRedirect(shortUrlId);
-    }
-  });
-
-  // 处理页面内短链接点击
-  document.addEventListener('click', (e) => {
-    const target = e.target;
-    if (target.tagName === 'A' && target.href.includes('?id=')) {
-      e.preventDefault();
-      const shortUrlId = new URLSearchParams(new URL(target.href).search).get('id');
-      handleShortLinkRedirect(shortUrlId);
-    }
   });
 });
