@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>短链接生成器</title>
+  <link rel="stylesheet" href="./css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  <base href="/shortlink-generator/">
+</head>
+<body>
+  <!-- 主内容 -->
+  <div class="container">
+    <div class="input-card">
+      <h2>短链接生成器</h2>
+      <p>请输入需要转换的长链接</p>
+
+      <!-- 输入区域 -->
+      <div class="input-group">
+        <input type="text" id="longUrl" placeholder="请输入以 http:// 或 https:// 开头的链接">
+      </div>
+
+      <!-- 过期时间下拉框 -->
+      <div class="dropdown">
+        <select id="expirySelect">
+          <option value="1">1 天</option>
+          <option value="3">3 天</option>
+          <option value="5">5 天</option>
+          <option value="7">7 天</option>
+          <option value="permanent">永久</option>
+        </select>
+      </div>
+
+      <!-- 密码输入框 -->
+      <div class="password-input">
+        <input type="password" id="password" placeholder="请输入访问密码（可选）">
+        <span id="togglePassword" class="eye-icon"><i class="fas fa-eye"></i></span>
+      </div>
+
+      <!-- 生成按钮 -->
+      <button id="generateBtn" class="generate-btn">生成短链接</button>
+    </div>
+
+    <!-- 生成结果展示 -->
+    <div id="resultSection" class="result-section hidden">
+      <h3>生成成功！</h3>
+      <p><strong>短链接：</strong><a id="shortUrl" href="#" target="_self"></a> <button id="copyBtn" class="copy-btn"><i class="fas fa-copy"></i> 复制</button></p>
+      <p><strong>创建时间：</strong><span id="createdAt"></span></p>
+      <p><strong>到期时间：</strong><span id="expiryTime"></span></p>
+      <p><strong>访问密码：</strong><span id="passwordStatus"></span></p>
+    </div>
+
+    <!-- 功能介绍卡片 -->
+    <div class="features-section">
+      <div class="feature-card">
+        <i class="fas fa-link"></i>
+        <h3>长链接接</h3>
+        <p>简单粘贴创建的短链接持久可查，不大可访问时间，链接多长时间正常工作，不会突然失效，为您的长期项目和内容分享提供稳定支持。</p>
+      </div>
+      <div class="feature-card">
+        <i class="fas fa-rocket"></i>
+        <h3>操作便捷</h3>
+        <p>采用直观设计，让您轻松创建短链接。简洁的界面设计减少学习成本，几个步骤即可完成链接转换，帮助您提高工作效率。</p>
+      </div>
+      <div class="feature-card">
+        <i class="fas fa-lock"></i>
+        <h3>安全防护</h3>
+        <p>采用多层安全机制，保障链接生成及访问过程的安全性。我们还能够严格的数据保护措施，为您打造一个可信赖的链接管理环境。</p>
+      </div>
+      <div class="feature-card">
+        <i class="fas fa-user-secret"></i>
+        <h3>隐私保护</h3>
+        <p>重视您的数据隐私，我们不会收集或共享您的个人信息。使用过程中所有有数据均经过加密处理，让您无需担心隐私泄露问题。</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 底部 -->
+  <footer>
+    <p>© 2025 短链接生成器</p>
+  </footer>
+
+  <script src="./js/script.js"></script>
+</body>
+</html>
